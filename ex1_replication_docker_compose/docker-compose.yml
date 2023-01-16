@@ -1,0 +1,39 @@
+version: '3'
+services:
+    mongodb1:
+        image: mongo
+        container_name: mongodb1
+        volumes:
+          - ./mongodata1:/data/db
+        ports:
+         - 27017:27017
+        entrypoint: [ "/usr/bin/mongod", "--replSet", "rsmongo", "--bind_ip_all"]
+      
+    mongodb2:
+        image: mongo
+        container_name: mongodb2
+        volumes:
+        - ./mongodata2:/data/db
+        ports:
+         - 27018:27017
+        entrypoint: [ "/usr/bin/mongod", "--replSet", "rsmongo", "--bind_ip_all"]
+      
+            
+    mongodb3:
+        image: mongo
+        container_name: mongodb3
+        volumes:
+        - ./mongodata3:/data/db
+        ports:
+         - 27019:27017
+        entrypoint: [ "/usr/bin/mongod", "--replSet", "rsmongo", "--bind_ip_all" ]
+
+    mongoarbite:
+        image: mongo
+        container_name: mongoarbite
+        volumes:
+        - ./mongoarbitedb:/data/db
+        ports:
+         - 27020:27017
+        entrypoint: [ "/usr/bin/mongod", "--replSet", "rsmongo", "--bind_ip_all" ]
+

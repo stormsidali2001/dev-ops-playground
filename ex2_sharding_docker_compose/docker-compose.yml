@@ -1,0 +1,83 @@
+version: '3'
+services:
+  cfgsvr1:
+    container_name: cfgsvr1
+    image: mongo
+    command: mongod --configsvr --replSet rsconfig --port 27017  
+    ports:
+      - 40001:27017
+    environment:
+      TERM: xterm  
+    volumes:
+      - ./config/cfgsvr1:/data/db
+
+    links:
+     - shard1svr1
+     - shard2svr1   
+
+  cfgsvr2:
+    container_name: cfgsvr2
+    image: mongo
+    command: mongod --configsvr --replSet rsconfig --port 27017  
+    environment:
+      TERM: xterm 
+    ports:
+      - 40002:27017
+    volumes:
+      - ./config/cfgsvr2:/data/db
+    links:
+      - cfgsvr1   
+
+  shard1svr1:
+    container_name: shard1svr1
+    image: mongo
+    command: mongod --shardsvr --replSet shard1rs --port 27017 
+    environment:
+      TERM: xterm
+    ports:
+      - 50001:27017
+    volumes:
+      - ./shard1/shard1svr1:/data/db
+
+  shard1svr2:
+    container_name: shard1svr2
+    image: mongo
+    command: mongod --shardsvr --replSet shard1rs --port 27017 
+    environment:
+      TERM: xterm
+    ports:
+      - 50002:27017
+    volumes:
+      - ./shard1/shard1svr2:/data/db 
+
+
+  shard2svr1:
+    container_name: shard2svr1
+    image: mongo
+    command: mongod --shardsvr --replSet shard2rs --port 27017 
+    ports:
+      - 30071:27017
+    environment:
+      TERM: xterm 
+    volumes:
+      - ./shard2/shard2svr1:/data/db
+
+  shard2svr2:
+    container_name: shard2svr2
+    image: mongo
+    command: mongod --shardsvr --replSet shard2rs --port 27017 
+    ports:
+      - 30072:27017
+    volumes:
+      - ./shard2/shard2svr2:/data/db     
+
+  mongos:
+    container_name: mongos
+    image: mongo
+    command: mongos --configdb rsconfig/cfgsvr1:27017,cfgsvr2:27017  --port 27017  --bind_ip_all
+    ports:
+      - 60000:27017
+    
+    depends_on:
+      - cfgsvr1
+      - cfgsvr2 
